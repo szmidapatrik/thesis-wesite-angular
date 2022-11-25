@@ -1,0 +1,23 @@
+<div class="">
+    <h2 class="center-self">All-star elemzés</h2>
+</div>
+<div class="row flex-container">
+    <div class="col-4 left-card">
+        <div class="home-box">
+            <h3>NBA játékosok száma az újraértékelt posztok szerint</h3>
+            <google-chart [data]="columnChart"></google-chart>
+        </div>
+    </div>
+    <div class="col-4">
+        <div class="home-box">
+            <h3>All-star előrejelzés pontossága az előző szezon statisztikái alapján</h3>
+            <google-chart [data]="lineChart1"></google-chart>
+        </div>
+    </div>
+    <div class="col-4">
+        <div class="home-box">
+            <h3>All-star előrejelzés pontossága az előző szezon All-star játékosai alapján</h3>
+            <google-chart [data]="lineChart2"></google-chart>
+        </div>
+    </div>
+</div>
