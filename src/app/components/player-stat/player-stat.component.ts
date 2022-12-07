@@ -4,6 +4,9 @@ import { ColDef, GridOptions } from 'ag-grid-community';
 import { Observable, Subscription } from 'rxjs';
 import { PlayerstatsService } from '../../services/playerstats.service';
 import { ClusterModel } from '../../model/cluster.model.ts';
+import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
+
+import { BaseChartDirective } from 'ng2-charts';
 
 @Component({
   selector: 'app-player-stat',
@@ -14,6 +17,7 @@ export class PlayerStatComponent
   implements OnInit, OnDestroy{
 
   @ViewChild(AgGridAngular) agGrid!: AgGridAngular;
+  @ViewChild(BaseChartDirective) chart: BaseChartDirective | undefined;
 
   public rowData: any;
   public sub: Subscription | any;
@@ -37,11 +41,33 @@ export class PlayerStatComponent
   }
 
 
-  constructor(
-    private statService: PlayerstatsService
-  ) {
-  }
+  constructor(private statService: PlayerstatsService) {}
 
+
+  public barChartOptions: ChartConfiguration['options'] = {
+    responsive: true,
+    scales: {
+      x: {},
+      y: {
+        min: 10
+      }
+    },
+    plugins: {
+      legend: {
+        display: false,
+      },
+    },
+    backgroundColor: "#6495ED"
+  };
+
+  public barChartType: ChartType = 'bar';
+
+  public barChartData: ChartData<'bar'> = {
+    labels: [ 'Labdaigényes magasember', 'Dobó specialista', 'Tradicionális center', 'Labdajárató', 'Kiegészítőember', 'Labdaigényes pontszerző', 'Felemelkedő távoli dobó', 'Effektív centerek' ],
+    datasets: [
+      { data: [ 228, 463, 198, 422, 336, 376, 130, 47 ], label: 'Játékosok száma' },
+    ]
+  };
 
   ngOnDestroy(): void {
     this.sub.unsubscripbe();

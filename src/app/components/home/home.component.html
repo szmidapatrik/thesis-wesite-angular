@@ -1,23 +1,77 @@
-<div class="">
-    <h2 class="center-self">All-star elemzés</h2>
+<h1 style="padding: 10px 10px 0px 10px;">All-star stat compare</h1>
+<div class="card card-style" >
+
+  <div class="row">
+    <div class="col-2 align-center">
+      <mat-form-field appearance="fill">
+        <mat-label>All-star players</mat-label>
+        <mat-select placeholder="All-star players" #allStarValue [required]="required" (selectionChange)="changeAllStar($event.value)">
+          <mat-option *ngFor="let player of allStarList" [value]="player">
+            {{player}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+  
+    <div class="col-2 align-center">
+      <mat-form-field appearance="fill">
+        <mat-label>Non All-star players</mat-label>
+        <mat-select placeholder="Non All-star player" #nonAllStarValue [required]="required" (selectionChange)="changeNonAllStar($event.value)">
+          <mat-option *ngFor="let nasPlayer of nonAllStarList" [value]="nasPlayer">
+            {{nasPlayer}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <div class="col-2 align-center-button">
+      <button mat-button color="primary" (click)="comparePlayers()">Compare</button>
+    </div>
+
+  </div>
+
 </div>
-<div class="row flex-container">
-    <div class="col-4 left-card">
-        <div class="home-box">
-            <h3>NBA játékosok száma az újraértékelt posztok szerint</h3>
-            <google-chart [data]="columnChart"></google-chart>
-        </div>
-    </div>
+  <div style="padding-left: 2%; display: block; width: 97%; height: 50%;" *ngIf="compareFirstReady && compareSecondReady">
+    <h2 style="padding-top: 1%">Stat compare between all-star and Non All-star player</h2>
+    <canvas #chart width="40" height="13"
+      baseChart
+      [data]="barChartData"
+      [options]="barChartOptions"
+      [type]="barChartType">
+    </canvas>
+  </div>
+
+
+
+
+
+<!-- <div class="card card-style">
+  <div class="row">
+
     <div class="col-4">
-        <div class="home-box">
-            <h3>All-star előrejelzés pontossága az előző szezon statisztikái alapján</h3>
-            <google-chart [data]="lineChart1"></google-chart>
-        </div>
+      <div class="center">
+        
+      </div>
     </div>
+
     <div class="col-4">
-        <div class="home-box">
-            <h3>All-star előrejelzés pontossága az előző szezon All-star játékosai alapján</h3>
-            <google-chart [data]="lineChart2"></google-chart>
-        </div>
+      <div class="center">
+        <button mat-button color="primary">Compare</button>
+      </div>
     </div>
-</div>
+
+    <div class="col-4">
+      <div class="center">
+        <mat-form-field appearance="fill">
+          <mat-label>Non All-star players</mat-label>
+          <mat-select placeholder="Nem All-star játékos" #nonAllStarValue [required]="required" (selectionChange)="changeNonAllStar($event.value)">
+            <mat-option *ngFor="let nasPlayer of nonAllStarList" [value]="nasPlayer">
+              {{nasPlayer}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </div>
+
+  </div>
+</div> -->

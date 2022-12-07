@@ -1,9 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { GoogleChartComponent, GoogleChartInterface, GoogleChartType } from 'ng2-google-charts';
 import { HttpClient } from '@angular/common/http';
 import { Subscription } from 'rxjs';
 import { PlayerstatsService } from 'src/app/services/playerstats.service';
 import { style } from '@angular/animations';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
+import { ScrollStrategyOptions } from '@angular/cdk/overlay';
+import { PlayerModel } from '../../model/player.model';
 
 @Component({
   selector: 'app-home',
@@ -14,170 +17,49 @@ export class HomeComponent
   implements OnInit {
 
   public sub: Subscription | any;
-  public clusterData: any[] = [];
+  public allStarList: any[] = [];
+  public nonAllStarList: any[] = [];
+  public selectedAllStar: any = null;
+  public selectedNonAllStar: any = null;
+  public required: boolean = true;
+  public compareFirstReady: boolean = false;
+  public compareSecondReady: boolean = false;
 
-  public columnChartOptions: any = {
-    chartArea: {height: 170},
-    annotations: {
-      alwaysOutside: true,
-      textStyle: {
-        fontSize: 14,
-        color: '#000',
-        auraColor: 'none'
-      }
+
+  public barChartOptions: ChartConfiguration['options'] = {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      x: {},
+      y: {}
     },
-    hAxis: {
-      title: 'Új posztok',
+    plugins: {
+      legend: {
+        display: true,
+      },
     },
-    vAxis: {
-      title: 'Játékosok száma'
-    },
-    legend: null
+    backgroundColor: "#6495ED"
   };
 
-  public lineChartOptions: any = {
-    chartArea: {height: 170},
-    annotations: {
-      alwaysOutside: true,
-      textStyle: {
-        fontSize: 14,
-        color: '#000',
-        auraColor: 'none'
-      }
-    },
-    hAxis: {
-      title: 'Felhasznált statisztikai adatok száma',
-    },
-    vAxis: {
-      title: 'Predikció pontossága (%)'
-    },
-    colors: ['#ffae00'],
-    legend: 'none'
-  };
+  public barChartType: ChartType = 'bar';
 
-  public lineChartOptions2: any = {
-    chartArea: {height: 170},
-    annotations: {
-      alwaysOutside: true,
-      textStyle: {
-        fontSize: 14,
-        color: '#000',
-        auraColor: 'none'
-      }
-    },
-    hAxis: {
-      title: 'Felhasznált statisztikai adatok száma',
-    },
-    vAxis: {
-      title: 'Predikció pontossága (%)'
-    },
-    colors: ['#00ff7b'],
-    legend: 'none'
-  };
-
-  public columnChart: GoogleChartInterface = {
-    chartType: GoogleChartType.ColumnChart,
-    dataTable: [
-      ['Poszt', 'Játékosok száma'],
-      ['helo', 228],
-      ['test', 463],
-      ['ers', 198],
-      ['3', 422],
-      ['4', 336],
-      ['5', 376],
-      ['6', 130],
-      ['7', 47],
-    ],
-    options: this.columnChartOptions
-  }
-
-  public lineChart1: GoogleChartInterface = {
-    chartType: GoogleChartType.LineChart,
-    dataTable: [
-      ['Prediktív statisztikák száma', 'Predikció pontossága (%)'],
-      [1, 7.5],
-      [10, 68],
-      [30, 70],
-      [50, 69],
-      [70, 72],
-      [90, 70.5],
-      [110, 71.5],
-      [130, 74],
-      [140, 75.5],
-      [150, 73.5],
-      [170, 73],
-      [190, 71],
-      [210, 70],
-      [230, 69],
-      [250, 70.5],
-      [270, 70],
-      [290, 71.5],
-      [310, 68.5],
-      [330, 70],
-    ],
-    options: this.lineChartOptions
-  }
-
-  public lineChart2: GoogleChartInterface = {
-    chartType: GoogleChartType.LineChart,
-    dataTable: [
-      ['Prediktív statisztikák száma', 'Predikció pontossága (%)'],
-      [1, 80.5],
-      [10, 77.5],
-      [30, 77.8],
-      [50, 76.3],
-      [70, 79],
-      [90, 77.5],
-      [110, 79.3],
-      [130, 77.6],
-      [140, 78],
-      [150, 78.3],
-      [170, 77.7],
-      [190, 80],
-      [210, 80.3],
-      [230, 80.3],
-      [250, 81],
-      [270, 79],
-      [290, 78],
-      [310, 78.3],
-      [330, 77.7],
-      [350, 78],
-      [370, 77.5],
-      [390, 78.5],
-      [410, 77.5],
-      [430, 77.7],
-      [450, 77.7],
-      [470, 78.3],
-      [490, 78.3],
-      [510, 77.5],
-      [530, 77],
-      [550, 75.5],
-      [570, 76],
-      [590, 75.5],
-      [610, 77],
-      [630, 75.5],
-      [650, 75.8],
-      [670, 75.8],
-      [690, 75.5],
-      [710, 76.2],
-      [730, 75.5],
-      [900, 75.5],
-    ],
-    options: this.lineChartOptions2
-  }
+  public barChartData: any | ChartData<'bar'>;
 
 
-  constructor(private statService: PlayerstatsService) {
-    // var chartOptions: any = {
-    //   chartArea: {width: 400, height: 400},
-    // };
-  }
+  constructor(private statService: PlayerstatsService, private snackBar: MatSnackBar) {}
 
   ngOnInit(): void {
-    this.statService.getClusters('clusternum')
+    this.statService.getClusters('allstars')
       .subscribe(
         data => {
-          this.clusterData = data;
+          this.allStarList = data;
+        },
+        err => console.error(err),
+      );
+      this.statService.getClusters('nonallstars')
+      .subscribe(
+        data => {
+          this.nonAllStarList = data;
         },
         err => console.error(err),
       );
@@ -186,5 +68,84 @@ export class HomeComponent
   ngOnDestroy(): void {
     this.sub.unsubscripbe();
   }
+
+  changeAllStar(value: any) {
+    this.selectedAllStar = value;
+  }
+
+  changeNonAllStar(value: any) {
+    this.selectedNonAllStar = value;
+  }
+
+  comparePlayers(): any {
+    if(this.selectedAllStar == "" || this.selectedAllStar == null || this.selectedNonAllStar == "" || this.selectedNonAllStar == null) {
+      this.snackBar.open('Please select and All-star and a Non All-star player', 'Ok', {duration: 3000});
+      return;
+    }
+    // Variables
+    var selAS: string;
+    var selASSeas: string;
+    var selNAS: string;
+    var selNASSeas: string;
+    // All-star check
+    if (this.selectedAllStar == "All-star Avg.") {
+      selAS = "All-star Avg."; selASSeas = "2015";
+    }
+    else {
+      selAS = this.selectedAllStar.split(" - ", 1)[0] + " - " + this.selectedAllStar.split(" - ", 2)[1];
+      selASSeas = this.selectedAllStar.split(" - ")[2].substring(0,4);
+    }
+    // Non All-star check
+    if (this.selectedNonAllStar == "Non All-star Avg.") {
+      selNAS = "Non All-star Avg."; selNASSeas = "2015";
+    }
+    else {
+      selNAS = this.selectedNonAllStar.split(" - ", 1)[0] + " - " + this.selectedNonAllStar.split(" - ", 2)[1];
+      selNASSeas = this.selectedNonAllStar.split(" - ")[2].substring(0,4);
+    }
+    // Request
+    this.statService.getClusters(`compare?Player=${selAS}&Season=${selASSeas}`)
+      .subscribe(
+        data => {
+          var allStarData: PlayerModel = data[0];
+          this.compareFirstReady = true;
+          this.statService.getClusters(`compare?Player=${selNAS}&Season=${selNASSeas}`)
+          .subscribe(
+            data => {
+              var nonAllStarData: PlayerModel = data[0];
+              this.compareSecondReady = true;
+              console.log(allStarData)
+              console.log(nonAllStarData)
+              this.barChartData = {
+                labels: [ "OREB", "DREB", "PTS", "2PM", "3PM", "AST", "BLK", "STL", "FTM", "TOV",  
+                          "Usg%", "3FGA%", "DNKA%", "2FG_Assisted%", "3FG_Assisted%", "ShotDistSTD",
+                          "0-3FGA%", "3-10FGA%", "10-22FGA%", ],
+                datasets: [
+                  { data: [ allStarData.oreb, allStarData.dreb, allStarData.pts, allStarData.twopm, allStarData.threepm,
+                            allStarData.ast, allStarData.blk, allStarData.stl, allStarData.ftm, allStarData.tov,
+                            allStarData.usg, allStarData.threefgap, allStarData.dnkap, allStarData.twofg_assistedp,
+                            allStarData.threefg_sssistedp, allStarData.shotDistSTS, allStarData.closeFGAp, allStarData.midFGAp, allStarData.longFGAp,],
+                    label: allStarData.Player,
+                  },
+                  { data: [ nonAllStarData.oreb, nonAllStarData.dreb, nonAllStarData.pts, nonAllStarData.twopm, nonAllStarData.threepm,
+                    nonAllStarData.ast, nonAllStarData.blk, nonAllStarData.stl, nonAllStarData.ftm, nonAllStarData.tov,
+                    nonAllStarData.usg, nonAllStarData.threefgap, nonAllStarData.dnkap, nonAllStarData.twofg_assistedp,
+                    nonAllStarData.threefg_sssistedp, nonAllStarData.shotDistSTS, nonAllStarData.closeFGAp, nonAllStarData.midFGAp, nonAllStarData.longFGAp,],
+                    label: nonAllStarData.Player,
+                    backgroundColor: ["orange"],
+                   },
+                ],
+              };
+            },
+            err => console.error(err),
+          );
+        },
+        err => console.error(err),
+      );
+  }
+
+  reverse(s: string){
+    return s.split("").reverse().join("");
+}
 
 }

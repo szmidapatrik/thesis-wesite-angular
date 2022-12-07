@@ -1,7 +1,30 @@
 .ag-grid-size {
-    height: 50%;
-    width: 50%;
-    margin-left: 25%;
-    margin-right: 25%;
+    height: 100%;
+    width: match-parent;
     border-radius: 10px;
+    margin: 10px 10px 10px 10px;
+    padding: 15px 15px 15px 15px;
+}
+
+.shadow-and-padding {
+    box-shadow: 0 0 3px;
+    border-radius: 3px;
+    margin: 10px 10px 10px 10px;
+    padding: 15px 15px 15px 15px;
+    height: match-parent;
+}
+
+.chart-container {
+    align-self: center;
+    align-items: center;
+    width: match-parent;
+    height: match-parent;
+}
+
+.col-6-height {
+    height: 90%
+}
+
+.col-6 {
+    height: match-parent;
 }
